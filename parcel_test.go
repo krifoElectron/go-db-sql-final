@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -43,7 +42,6 @@ func TestAddGetDelete(t *testing.T) {
 	// добавьте новую посылку в БД, убедитесь в отсутствии ошибки и наличии идентификатора
 	id, err := store.Add(parcel)
 	require.Nil(t, err)
-	fmt.Println("idid", id)
 	require.NotEmpty(t, id)
 
 	// get
@@ -51,17 +49,15 @@ func TestAddGetDelete(t *testing.T) {
 	// проверьте, что значения всех полей в полученном объекте совпадают со значениями полей в переменной parcel
 	parcelFromStore, err := store.Get(id)
 	assert.Nil(t, err)
-	assert.Equal(t, parcelFromStore.Address, parcel.Address)
-	assert.Equal(t, parcelFromStore.Client, parcel.Client)
-	assert.Equal(t, parcelFromStore.CreatedAt, parcel.CreatedAt)
-	assert.Equal(t, parcelFromStore.Number, parcel.Number)
-	assert.Equal(t, parcelFromStore.Status, parcel.Status)
+	assert.Equal(t, parcel, parcelFromStore)
 
 	// delete
 	// удалите добавленную посылку, убедитесь в отсутствии ошибки
-	// проверьте, что посылку больше нельзя получить из БД
 	err = store.Delete(id)
 	assert.Nil(t, err)
+	// проверьте, что посылку больше нельзя получить из БД
+	_, err = store.Get(id)
+	require.ErrorIs(t, err, sql.ErrNoRows)
 }
 
 // TestSetAddress проверяет обновление адреса
@@ -162,11 +158,7 @@ func TestGetByClient(t *testing.T) {
 
 	// check
 	for _, parcel := range parcelsFromStore {
-		assert.Equal(t, parcelMap[parcel.Number].Address, parcel.Address)
-		assert.Equal(t, parcelMap[parcel.Number].Client, parcel.Client)
-		assert.Equal(t, parcelMap[parcel.Number].CreatedAt, parcel.CreatedAt)
-		assert.Equal(t, parcelMap[parcel.Number].Number, parcel.Number)
-		assert.Equal(t, parcelMap[parcel.Number].Status, parcel.Status)
+		assert.Equal(t, parcelMap[parcel.Number], parcel)
 		// в parcelMap лежат добавленные посылки, ключ - идентификатор посылки, значение - сама посылка
 		// убедитесь, что все посылки из storedParcels есть в parcelMap
 		// убедитесь, что значения полей полученных посылок заполнены верно

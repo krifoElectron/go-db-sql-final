@@ -89,29 +89,19 @@ func (s ParcelService) NextStatus(number int) error {
 }
 
 func (s ParcelService) ChangeAddress(number int, address string) error {
-	parcel, err := s.store.Get(number)
+	_, err := s.store.Get(number)
 	if err != nil {
 		fmt.Println(err)
 		return err
-	}
-
-	// менять адрес можно только если значение статуса registered
-	if parcel.Status != ParcelStatusRegistered {
-		return fmt.Errorf("изменять адрес посылки только если значение статуса registered. Статус посылки с id = %d: %s", number, parcel.Status)
 	}
 
 	return s.store.SetAddress(number, address)
 }
 
 func (s ParcelService) Delete(number int) error {
-	parcel, err := s.store.Get(number)
+	_, err := s.store.Get(number)
 	if err != nil {
 		return err
-	}
-
-	// удалять строку можно только если значение статуса registered
-	if parcel.Status != ParcelStatusRegistered {
-		return fmt.Errorf("удалять строку можно только если значение статуса registered. Статус посылки с id = %d: %s", number, parcel.Status)
 	}
 
 	return s.store.Delete(number)
